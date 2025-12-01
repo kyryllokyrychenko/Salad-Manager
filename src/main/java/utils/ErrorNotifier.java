@@ -3,27 +3,57 @@ package utils;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 public class ErrorNotifier {
 
-    // === Налаштування e-mail ===
-    private static final String USER = "rockduck56@gmail.com";       // твій Gmail
-    private static final String APP_PASSWORD = "otvf itcr yycv izro"; // App Password 16 символів
-    private static final String TO = "rockduck56@gmail.com";          // куди надсилати (може бути той самий)
+    private static final String USER;
+    private static final String APP_PASSWORD;
+    private static final String TO;
+
+    static {
+        Properties props = new Properties();
+        String user = "";
+        String password = "";
+        String to = "";
+
+        try (FileInputStream fis = new FileInputStream("config.properties")) {
+            props.load(fis);
+            user = props.getProperty("email.user", "");
+            password = props.getProperty("email.password", "");
+            to = props.getProperty("email.to", "");
+        } catch (IOException e) {
+            System.err.println("Не вдалося прочитати config.properties, спробуємо змінні середовища");
+            user = System.getenv("EMAIL_USER");
+            password = System.getenv("EMAIL_PASSWORD");
+            to = System.getenv("EMAIL_TO");
+        }
+
+        USER = user;
+        APP_PASSWORD = password;
+        TO = to;
+    }
 
     public static void sendErrorEmail(Exception e) {
-        try {
-            Properties props = new Properties();
-            props.put("mail.smtp.host", "smtp.gmail.com");
-            props.put("mail.smtp.port", "587");
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true"); // TLS
-            props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-            props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        if (USER == null || USER.isEmpty() ||
+                APP_PASSWORD == null || APP_PASSWORD.isEmpty() ||
+                TO == null || TO.isEmpty()) {
+            System.out.println("Email credentials missing — skipping sendErrorEmail");
+            return;
+        }
 
-            Session session = Session.getInstance(props, new Authenticator() {
+        try {
+            Properties mailProps = new Properties();
+            mailProps.put("mail.smtp.host", "smtp.gmail.com");
+            mailProps.put("mail.smtp.port", "587");
+            mailProps.put("mail.smtp.auth", "true");
+            mailProps.put("mail.smtp.starttls.enable", "true"); // TLS
+            mailProps.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+            mailProps.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+            Session session = Session.getInstance(mailProps, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(USER, APP_PASSWORD);

@@ -10,9 +10,9 @@ public class Main {
     public static void main(String[] args) {
         logger.info("Старт програми");
 
-        /*ErrorNotifier.sendErrorEmail(new RuntimeException("Тестова помилка"));
-          можна розпакувати для перевірки відправлення на пошту
-        */
+        ErrorNotifier.sendErrorEmail(new RuntimeException("Тестова помилка"));
+//          можна розпакувати для перевірки відправлення на пошту
+
         try {
             Menu menu = new Menu();
             menu.start();

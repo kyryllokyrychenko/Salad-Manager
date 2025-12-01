@@ -18,16 +18,8 @@ public abstract class Vegetable {
         return (weight / 100.0) * caloriesPer100g;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public double getWeight() {
         return weight;
-    }
-
-    public double getCaloriesPer100g() {
-        return caloriesPer100g;
     }
 
     public void setWeight(double weight) {
