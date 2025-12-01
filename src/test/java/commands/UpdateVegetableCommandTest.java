@@ -1,12 +1,15 @@
 package commands;
 
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
+import utils.TestUtils;
 import vegetables.Salad;
 import vegetables.Vegetable;
 
 import java.io.*;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class UpdateVegetableCommandTest {
@@ -72,4 +75,26 @@ public class UpdateVegetableCommandTest {
                 cmd.getDesc()
         );
     }
+
+    @Test
+    void testFindVegetablesEmptyResult() {
+        Salad salad = Mockito.mock(Salad.class);
+
+        // user input: min=10, max=20
+        Scanner fakeScanner = new Scanner("10\n20\n");
+        FindVegetablesByCaloriesCommand cmd =
+                new FindVegetablesByCaloriesCommand(salad);
+
+        TestUtils.setField(cmd, "sc", fakeScanner);
+
+        Mockito.when(salad.findByCalories(10, 20)).thenReturn(List.of());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
+
+        cmd.execute();
+
+        assertTrue(out.toString().contains("Нічого не знайдено."));
+    }
+
 }

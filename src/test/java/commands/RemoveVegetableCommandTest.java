@@ -51,4 +51,28 @@ class RemoveVegetableCommandTest {
 
         assert cmd.getDesc().contains("Видалити");
     }
+
+    @Test
+    void testRemoveIndexBelowRange() {
+        Salad salad = Mockito.mock(Salad.class);
+
+        // Нехай є 2 овочі (size = 2)
+        Mockito.when(salad.getVegetables())
+                .thenReturn(List.of(
+                        Mockito.mock(vegetables.Vegetable.class),
+                        Mockito.mock(vegetables.Vegetable.class)
+                ));
+
+        // Користувач вводить "0" — нижче за мінімальний індекс
+        Scanner fakeScanner = new Scanner("0\n");
+
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad);
+        TestUtils.setField(cmd, "sc", fakeScanner);
+
+        cmd.execute();
+
+        // remove НЕ повинен викликатись
+        Mockito.verify(salad, Mockito.never()).remove(Mockito.anyInt());
+    }
+
 }

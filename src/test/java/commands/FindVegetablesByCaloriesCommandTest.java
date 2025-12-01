@@ -39,4 +39,13 @@ class FindVegetablesByCaloriesCommandTest {
 
         assert cmd.getDesc().contains("діапазоном");
     }
+
+    private void printResult(List<Vegetable> vegetables) {
+        if (vegetables.isEmpty()) {
+            System.out.println("Нічого не знайдено.");
+            return;
+        }
+        vegetables.forEach(System.out::println);
+    }
+
 }

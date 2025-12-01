@@ -3,15 +3,24 @@ package utils;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
 public class ErrorNotifier {
 
-    private static final String USER;
-    private static final String APP_PASSWORD;
-    private static final String TO;
+    static String USER;
+    static String APP_PASSWORD;
+    static String TO;
+
+    // ====== НОВЕ: дозволяє тестам без рефлексії переписувати поля ======
+    public static void setCredentialsForTests(String user, String pass, String to) {
+        USER = user;
+        APP_PASSWORD = pass;
+        TO = to;
+    }
+    // ====================================================================
 
     static {
         Properties props = new Properties();
@@ -49,7 +58,7 @@ public class ErrorNotifier {
             mailProps.put("mail.smtp.host", "smtp.gmail.com");
             mailProps.put("mail.smtp.port", "587");
             mailProps.put("mail.smtp.auth", "true");
-            mailProps.put("mail.smtp.starttls.enable", "true"); // TLS
+            mailProps.put("mail.smtp.starttls.enable", "true");
             mailProps.put("mail.smtp.ssl.trust", "smtp.gmail.com");
             mailProps.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
