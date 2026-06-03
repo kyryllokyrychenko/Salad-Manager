@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ui.controller.SaladListController"
+      styleClass="root-pane"
+      spacing="0">
+
+    <HBox styleClass="header" alignment="CENTER" spacing="16">
+        <Label text="🥗 Шеф-кухар" styleClass="header-title" HBox.hgrow="ALWAYS"/>
+
+    </HBox>
+
+    <VBox styleClass="content-pane" alignment="CENTER" VBox.vgrow="ALWAYS" spacing="16">
+        <Label text="Оберіть салат або створіть новий" styleClass="subtitle"/>
+
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS"
+                    styleClass="cards-scroll" hbarPolicy="NEVER">
+            <FlowPane fx:id="saladCardsPane" styleClass="cards-pane"
+                      hgap="16" vgap="16" prefWrapLength="700"/>
+        </ScrollPane>
+    </VBox>
+
+    <HBox style="-fx-padding: 0 8 8 8;">
+        <Button text="+ Новий салат" styleClass="btn-accent" onAction="#createNew"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Вийти" styleClass="btn-danger" onAction="#exitApp"/>
+    </HBox>
+</VBox>

@@ -1,7 +1,7 @@
 package commands;
 
-import menu.Menu;
 import org.junit.jupiter.api.*;
+import service.SaladService;
 import vegetables.Salad;
 
 import java.util.Map;
@@ -11,59 +11,27 @@ import static org.mockito.Mockito.*;
 public class SubmenuTest {
 
     private Submenu submenu;
-    private Salad salad;
 
     @BeforeEach
     void setup() {
-        salad = mock(Salad.class);
-
-        submenu = new Submenu();
-
-        // ⚠ встановлюємо salad у базовому класі Menu
-        try {
-            var field = Menu.class.getDeclaredField("salad");
-            field.setAccessible(true);
-            field.set(submenu, salad);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        submenu = new Submenu(new Salad("Тест"), mock(SaladService.class), 1);
     }
-
-//    @Test
-//    void testExecuteCallsStart() {
-//        Submenu spyMenu = spy(submenu);
-//
-//        spyMenu.execute();
-//
-//        verify(spyMenu, times(1)).start();
-//    }
 
     @Test
     void testInitCreatesAllCommands() {
-        submenu.init();
-
-        Map<String, Command> commands;
-        try {
-            var field = Menu.class.getDeclaredField("commands");
-            field.setAccessible(true);
-            commands = (Map<String, Command>) field.get(submenu);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        Map<String, Command> commands = submenu.getCommands();
         Assertions.assertEquals(7, commands.size());
-
-        Assertions.assertTrue(commands.get("додати") instanceof AddVegetableCommand);
-        Assertions.assertTrue(commands.get("показати") instanceof ShowSaladCommand);
-        Assertions.assertTrue(commands.get("підрахувати") instanceof CalculateCaloriesCommand);
-        Assertions.assertTrue(commands.get("сортувати") instanceof SortVegetablesCommand);
-        Assertions.assertTrue(commands.get("знайти") instanceof FindVegetablesByCaloriesCommand);
-        Assertions.assertTrue(commands.get("видалити") instanceof RemoveVegetableCommand);
-        Assertions.assertTrue(commands.get("оновити") instanceof UpdateVegetableCommand);
+        Assertions.assertInstanceOf(AddVegetableCommand.class,             commands.get("додати"));
+        Assertions.assertInstanceOf(ShowSaladCommand.class,                commands.get("показати"));
+        Assertions.assertInstanceOf(CalculateCaloriesCommand.class,        commands.get("підрахувати"));
+        Assertions.assertInstanceOf(SortVegetablesCommand.class,           commands.get("сортувати"));
+        Assertions.assertInstanceOf(FindVegetablesByCaloriesCommand.class,  commands.get("знайти"));
+        Assertions.assertInstanceOf(RemoveVegetableCommand.class,          commands.get("видалити"));
+        Assertions.assertInstanceOf(UpdateVegetableCommand.class,          commands.get("оновити"));
     }
 
     @Test
     void testGetDesc() {
-        Assertions.assertEquals("Сабменю", submenu.getDesc());
+        Assertions.assertEquals("Відкрити сабменю", submenu.getDesc());
     }
 }

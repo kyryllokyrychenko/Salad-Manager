@@ -1,32 +1,29 @@
 package commands;
 
 import menu.Menu;
+import service.SaladService;
 import vegetables.Salad;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+public class Submenu extends Menu implements Command {
 
-public class Submenu extends Menu implements Command{
-
-    @Override
-    public void execute() {
-       start();
+    public Submenu(Salad salad, SaladService service, int currentSaladId) {
+        super(salad, service, currentSaladId);
     }
 
     @Override
-    public String getDesc() {
-        return "Сабменю";
-    }
+    public void execute() { start(); }
+
+    @Override
+    public String getDesc() { return "Відкрити сабменю"; }
 
     @Override
     protected void init() {
-        commands.put("додати", new AddVegetableCommand(salad));
-        commands.put("показати", new ShowSaladCommand(salad));
-        commands.put("підрахувати", new CalculateCaloriesCommand(salad));
-        commands.put("сортувати", new SortVegetablesCommand(salad));
-        commands.put("знайти", new FindVegetablesByCaloriesCommand(salad));
-        commands.put("видалити", new RemoveVegetableCommand(salad));
-        commands.put("оновити", new UpdateVegetableCommand(salad));
+        commands.put("додати",      new AddVegetableCommand(salad, service, currentSaladId));
+        commands.put("показати",    new ShowSaladCommand(salad));
+        commands.put("підрахувати", new CalculateCaloriesCommand(salad, service));
+        commands.put("сортувати",   new SortVegetablesCommand(salad, service));
+        commands.put("знайти",      new FindVegetablesByCaloriesCommand(salad, service));
+        commands.put("видалити",    new RemoveVegetableCommand(salad, service));
+        commands.put("оновити",     new UpdateVegetableCommand(salad, service));
     }
 }
-

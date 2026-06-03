@@ -1,111 +1,141 @@
 package commands;
 
 import org.junit.jupiter.api.Test;
-import vegetables.Salad;
+import service.SaladService;
 import vegetables.*;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class AddVegetableCommandTest {
 
-    @Test
-    void testCreateVegetableCarrot() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("1", 100);
+    private final SaladService service = mock(SaladService.class);
 
-        assertTrue(v instanceof Carrot);
-        assertEquals(100, v.getWeight());
+    private Map<Integer, String> defaultTypes() {
+        Map<Integer, String> m = new LinkedHashMap<>();
+        m.put(1, "Морква");
+        m.put(2, "Помідор");
+        m.put(3, "Огірок");
+        m.put(4, "Лук");
+        m.put(5, "Капуста");
+        m.put(6, "Перець");
+        return m;
     }
 
-    @Test
-    void testCreateVegetableTomato() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("2", 50);
-
-        assertTrue(v instanceof Tomato);
-        assertEquals(50, v.getWeight());
-    }
-
-    @Test
-    void testInvalidChoiceReturnsNull() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("999", 100);
-
-        assertNull(v);
+    private AddVegetableCommand cmd(Salad salad, Scanner sc) {
+        when(service.getAllTypes()).thenReturn(defaultTypes());
+        when(service.createVegetable(anyString(), anyDouble())).thenAnswer(inv -> {
+            String name = inv.getArgument(0);
+            double w    = inv.getArgument(1);
+            return switch (name) {
+                case "Морква"  -> new Carrot(w);
+                case "Помідор" -> new Tomato(w);
+                case "Огірок"  -> new Cucumber(w);
+                case "Лук"     -> new Onion(w);
+                case "Капуста" -> new Cabbage(w);
+                case "Перець"  -> new Pepper(w);
+                default        -> new CustomVegetable(name, w, 20);
+            };
+        });
+        doAnswer(inv -> { salad.add(inv.getArgument(1)); return null; }) // ← було 0, стало 1
+                .when(service).addVegetable(any(), any(), anyInt());
+        return new AddVegetableCommand(salad, sc, service, 1);
     }
 
     @Test
     void testExecuteAddsCarrotToSalad() {
-        // Емуляція введення користувача:
-        // "1" (морква) + Enter + "200" + Enter
-        String input = "1\n200\n";
-        Scanner fakeScanner = new Scanner(input);
-
         Salad salad = new Salad();
-        AddVegetableCommand cmd = new AddVegetableCommand(salad, fakeScanner);
-
-        cmd.execute();
-
+        cmd(salad, new Scanner("1\n200\n")).execute();
         assertEquals(1, salad.getVegetables().size());
-        assertTrue(salad.getVegetables().get(0) instanceof Carrot);
+        assertInstanceOf(Carrot.class, salad.getVegetables().get(0));
         assertEquals(200, salad.getVegetables().get(0).getWeight());
     }
 
     @Test
     void testExecuteInvalidChoiceDoesNotAdd() {
-        String input = "999\n150\n";
-        Scanner fakeScanner = new Scanner(input);
-
         Salad salad = new Salad();
-        AddVegetableCommand cmd = new AddVegetableCommand(salad, fakeScanner);
-
-        cmd.execute();
-
+        cmd(salad, new Scanner("99\n")).execute();
         assertEquals(0, salad.getVegetables().size());
     }
 
     @Test
+    void testExecuteAddsCustomVegetable() {
+        Salad salad = new Salad();
+        when(service.createCustomVegetable("Баклажан", 100, 25))
+                .thenReturn(new CustomVegetable("Баклажан", 100, 25));
+        // doAnswer прибрали — він вже є в cmd()
+        cmd(salad, new Scanner("7\nБаклажан\n100\n25\n")).execute();
+        assertEquals(1, salad.getVegetables().size());
+        assertInstanceOf(CustomVegetable.class, salad.getVegetables().get(0));
+        verify(service).createCustomVegetable("Баклажан", 100, 25);
+    }
+
+    @Test
+    void testExecuteCustomVegetableEmptyNameDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("7\n\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteNonNumberInputDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("абвг\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteNegativeWeightDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("1\n-50\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteInvalidWeightStringDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("1\nабвг\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteCustomInvalidWeightDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("7\nБаклажан\nабвг\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteCustomNegativeWeightDoesNotAdd() {
+        Salad salad = new Salad();
+        cmd(salad, new Scanner("7\nБаклажан\n-10\n20\n")).execute();
+        assertEquals(0, salad.getVegetables().size());
+    }
+
+    @Test
+    void testExecuteCustomTypeFromDbCreatesCustomVegetable() {
+        Map<Integer, String> types = new LinkedHashMap<>();
+        types.put(1, "Рукола");
+        when(service.getAllTypes()).thenReturn(types);
+        when(service.createVegetable("Рукола", 100))
+                .thenReturn(new CustomVegetable("Рукола", 100, 20));
+
+        Salad salad = new Salad();
+        doAnswer(inv -> { salad.add(inv.getArgument(1)); return null; })
+                .when(service).addVegetable(any(), any(), anyInt());
+
+        new AddVegetableCommand(salad, new Scanner("1\n100\n"), service, 1).execute();
+        assertEquals(1, salad.getVegetables().size());
+        assertInstanceOf(CustomVegetable.class, salad.getVegetables().get(0));
+    }
+
+    @Test
     void testGetDesc() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        assertEquals("Додати овоч до салату", cmd.getDesc());
+        assertEquals("Додати овоч до салату",
+                new AddVegetableCommand(new Salad(), service, 1).getDesc());
     }
-
-    @Test
-    void testCreateVegetableCucumber() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("3", 120);
-
-        assertTrue(v instanceof Cucumber);
-        assertEquals(120, v.getWeight());
-    }
-
-    @Test
-    void testCreateVegetableOnion() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("4", 80);
-
-        assertTrue(v instanceof Onion);
-        assertEquals(80, v.getWeight());
-    }
-
-    @Test
-    void testCreateVegetableCabbage() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("5", 250);
-
-        assertTrue(v instanceof Cabbage);
-        assertEquals(250, v.getWeight());
-    }
-
-    @Test
-    void testCreateVegetablePepper() {
-        AddVegetableCommand cmd = new AddVegetableCommand(new Salad());
-        Vegetable v = cmd.createVegetable("6", 60);
-
-        assertTrue(v instanceof Pepper);
-        assertEquals(60, v.getWeight());
-    }
-
 }

@@ -1,0 +1,200 @@
+/* ===== Базові кольори ===== */
+/* Салатовий: #6db56d, світло-зелений акцент: #a8d5a2, фон: #f5faf5 */
+
+.root-pane {
+    -fx-background-color: #f5faf5;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ===== Хедер ===== */
+.header {
+    -fx-background-color: #6db56d;
+    -fx-padding: 16 24;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* ===== Контент ===== */
+.content-pane {
+    -fx-padding: 24 24 16 24;
+    -fx-background-color: #f5faf5;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #555;
+}
+
+.calories-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a9e4a;
+}
+
+/* ===== Список салатів ===== */
+.salad-list {
+    -fx-background-color: white;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 14px;
+}
+
+.salad-list .list-cell:hover {
+    -fx-background-color: #e8f5e9;
+}
+
+.salad-list .list-cell:selected {
+    -fx-background-color: #a8d5a2;
+    -fx-text-fill: #1b5e20;
+}
+
+/* ===== Таблиця ===== */
+.veg-table {
+    -fx-background-color: white;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.veg-table .column-header {
+    -fx-background-color: #a8d5a2;
+}
+
+.veg-table .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1b5e20;
+}
+
+.veg-table .table-row-cell:hover {
+    -fx-background-color: #e8f5e9;
+}
+
+.veg-table .table-row-cell:selected {
+    -fx-background-color: #c8e6c9;
+    -fx-text-fill: #1b5e20;
+}
+
+/* ===== Кнопки ===== */
+.btn-primary {
+    -fx-background-color: #6db56d;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-primary:hover { -fx-background-color: #5aa55a; }
+
+.btn-accent {
+    -fx-background-color: #4a9e4a;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-accent:hover { -fx-background-color: #3d8b3d; }
+
+.btn-secondary {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #2e7d32;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-border-color: #a8d5a2;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover { -fx-background-color: #c8e6c9; }
+
+.btn-danger {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #c62828;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-border-color: #ffcdd2;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-danger:hover { -fx-background-color: #ffcdd2; }
+
+.btn-back {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 6 12;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-back:hover { -fx-background-color: rgba(255,255,255,0.2); }
+
+/* ===== Діалоги ===== */
+.dialog-pane {
+    -fx-background-color: #f5faf5;
+}
+.dialog-pane .button {
+    -fx-background-color: #6db56d;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+}
+.dialog-pane .button:hover { -fx-background-color: #5aa55a; }
+
+/* ===== Картки салатів ===== */
+.cards-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.cards-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}
+
+.salad-card {
+    -fx-background-color: white;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.salad-card:hover {
+    -fx-border-color: #6db56d;
+    -fx-effect: dropshadow(gaussian, rgba(109,181,109,0.25), 12, 0, 0, 3);
+}
+
+.card-image {
+    -fx-background-color: #e8f5e9;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e7d32;
+    -fx-wrap-text: true;
+    -fx-alignment: center;
+    -fx-max-width: 156;
+}
+
+.btn-danger-small {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #c62828;
+    -fx-font-size: 12px;
+    -fx-padding: 5 12;
+    -fx-background-radius: 6;
+    -fx-border-color: #ffcdd2;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-danger-small:hover { -fx-background-color: #ffcdd2; }

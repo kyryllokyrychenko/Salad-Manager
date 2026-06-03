@@ -1,8 +1,6 @@
-package salad;
+package vegetables;
 
 import org.junit.jupiter.api.Test;
-import vegetables.Vegetable;
-import vegetables.Salad;
 
 import java.util.List;
 
@@ -36,17 +34,6 @@ class SaladTest {
         List<Vegetable> list = salad.getVegetables();
 
         assertThrows(UnsupportedOperationException.class, () -> list.add(mock(Vegetable.class)));
-    }
-
-    @Test
-    void testRemoveValidIndex() {
-        Salad salad = new Salad();
-        Vegetable veg = mock(Vegetable.class);
-
-        salad.add(veg);
-        salad.remove(0);
-
-        assertTrue(salad.getVegetables().isEmpty());
     }
 
     @Test
@@ -107,12 +94,6 @@ class SaladTest {
 
         assertEquals(1, result.size());
         assertEquals(v1, result.get(0));
-    }
-
-    @Test
-    void testRemoveNegativeIndexThrows() {
-        Salad salad = new Salad();
-        assertThrows(IndexOutOfBoundsException.class, () -> salad.remove(-1));
     }
 
     @Test
@@ -177,6 +158,47 @@ class SaladTest {
         assertDoesNotThrow(salad::sortByCalories);
         assertEquals(1, salad.getVegetables().size());
         assertEquals(v, salad.getVegetables().get(0));
+    }
+
+    @Test
+    void testConstructorNullNameUsesDefault() {
+        Salad s = new Salad(null);
+        assertEquals("Без назви", s.getName());
+    }
+
+    @Test
+    void testConstructorBlankNameUsesDefault() {
+        Salad s = new Salad("   ");
+        assertEquals("Без назви", s.getName());
+    }
+
+    @Test
+    void testRemoveValidIndex() {
+        Salad s = new Salad();
+        s.add(new Carrot(100));
+        s.remove(0);
+        assertTrue(s.getVegetables().isEmpty());
+    }
+
+    @Test
+    void testRemoveNegativeIndexThrows() {
+        Salad s = new Salad();
+        s.add(new Carrot(100));
+        assertThrows(IndexOutOfBoundsException.class, () -> s.remove(-1));
+    }
+
+    @Test
+    void testRemoveIndexTooLargeThrows() {
+        Salad s = new Salad();
+        s.add(new Carrot(100));
+        assertThrows(IndexOutOfBoundsException.class, () -> s.remove(5));
+    }
+
+    @Test
+    void testSetName() {
+        Salad s = new Salad("Старий");
+        s.setName("Новий");
+        assertEquals("Новий", s.getName());
     }
 
 }

@@ -1,5 +1,6 @@
 package commands;
 
+import service.SaladService;
 import vegetables.Salad;
 import vegetables.Vegetable;
 
@@ -8,40 +9,36 @@ import java.util.Scanner;
 
 public class FindVegetablesByCaloriesCommand implements Command {
 
-    private final Salad salad;
-    private final Scanner sc = new Scanner(System.in);
+    private final Salad        salad;
+    private final SaladService service;
+    private final Scanner      sc;
 
-    public FindVegetablesByCaloriesCommand(Salad salad) {
-        this.salad = salad;
+    public FindVegetablesByCaloriesCommand(Salad salad, SaladService service) {
+        this(salad, new Scanner(System.in), service);
+    }
+
+    public FindVegetablesByCaloriesCommand(Salad salad, Scanner sc, SaladService service) {
+        this.salad   = salad;
+        this.sc      = sc;
+        this.service = service;
     }
 
     @Override
     public void execute() {
-        double min = requestDouble("Мінімум калорій: ");
-        double max = requestDouble("Максимум калорій: ");
+        System.out.print("Мінімум калорій: ");
+        double min = Double.parseDouble(sc.nextLine());
+        System.out.print("Максимум калорій: ");
+        double max = Double.parseDouble(sc.nextLine());
 
-        List<Vegetable> result = salad.findByCalories(min, max);
-        printResult(result);
-    }
-
-    private double requestDouble(String message) {
-        System.out.print(message);
-        return Double.parseDouble(sc.nextLine());
-    }
-
-    private void printResult(List<Vegetable> vegetables) {
+        List<Vegetable> result = service.findByCalories(salad, min, max);
         System.out.println("\nОвочі в заданому діапазоні:");
-
-        if (vegetables.isEmpty()) {
+        if (result.isEmpty()) {
             System.out.println("Нічого не знайдено.");
-            return;
+        } else {
+            result.forEach(System.out::println);
         }
-
-        vegetables.forEach(System.out::println);
     }
 
     @Override
-    public String getDesc() {
-        return "Знайти овочі за діапазоном калорій";
-    }
+    public String getDesc() { return "Знайти овочі за діапазоном калорій"; }
 }

@@ -1,46 +1,36 @@
 package commands;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
+import service.SaladService;
 import vegetables.Salad;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class CalculateCaloriesCommandTest {
+class CalculateCaloriesCommandTest {
 
-    private Salad salad;
-    private ByteArrayOutputStream out;
-
-    @BeforeEach
-    void setup() {
-        salad = mock(Salad.class);
-        out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-    }
+    private final SaladService service = mock(SaladService.class);
 
     @Test
-    void testExecute() {
-        when(salad.getTotalCalories()).thenReturn(123.5);
+    void testExecutePrintsCalories() {
+        Salad salad = new Salad();
+        when(service.getTotalCalories(salad)).thenReturn(123.45);
 
-        CalculateCaloriesCommand cmd = new CalculateCaloriesCommand(salad);
-        cmd.execute();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
 
-        verify(salad, times(1)).getTotalCalories();
+        new CalculateCaloriesCommand(salad, service).execute();
 
-        String output = out.toString();
-        Assertions.assertTrue(output.contains("123.5"));
-        Assertions.assertTrue(output.contains("Загальна калорійність салату"));
+        System.setOut(System.out);
+        assertTrue(out.toString().contains("123,45") || out.toString().contains("123.45"));
+        verify(service).getTotalCalories(salad);
     }
 
     @Test
     void testGetDesc() {
-        CalculateCaloriesCommand cmd = new CalculateCaloriesCommand(salad);
-
-        Assertions.assertEquals(
-                "Підрахувати калорійність салату",
-                cmd.getDesc()
-        );
+        assertEquals("Підрахувати калорійність салату",
+                new CalculateCaloriesCommand(new Salad(), service).getDesc());
     }
 }

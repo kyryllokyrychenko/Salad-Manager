@@ -1,69 +1,105 @@
 package commands;
 
-import java.util.Scanner;
-import vegetables.*;
+import service.SaladService;
 import vegetables.Salad;
+import vegetables.Vegetable;
+
+import java.util.Map;
+import java.util.Scanner;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AddVegetableCommand implements Command {
 
-    private Salad salad;
-    private Scanner sc;
+    private static final Logger logger = LogManager.getLogger(AddVegetableCommand.class);
 
-    public AddVegetableCommand(Salad salad) {
-        this(salad, new Scanner(System.in));
+    private final Salad        salad;
+    private final SaladService service;
+    private final int          currentSaladId;
+    private final Scanner      sc;
+
+    public AddVegetableCommand(Salad salad, SaladService service, int currentSaladId) {
+        this(salad, new Scanner(System.in), service, currentSaladId);
     }
 
-    public AddVegetableCommand(Salad salad, Scanner sc) {
-        this.salad = salad;
-        this.sc = sc;
+    public AddVegetableCommand(Salad salad, Scanner sc, SaladService service, int currentSaladId) {
+        this.salad          = salad;
+        this.sc             = sc;
+        this.service        = service;
+        this.currentSaladId = currentSaladId;
     }
 
     @Override
     public void execute() {
-        showMenu();
-        String choice = sc.nextLine();
+        Map<Integer, String> types = service.getAllTypes();
 
-        double weight = requestWeight();
-
-        Vegetable veg = createVegetable(choice, weight);
-
-        if (veg != null)
-            salad.add(veg);
-        else
-            System.out.println("Невірний вибір.");
-    }
-
-    private void showMenu() {
         System.out.println("\nОберіть овоч:");
-        System.out.println("1 — Морква");
-        System.out.println("2 — Помідор");
-        System.out.println("3 — Огірок");
-        System.out.println("4 — Лук");
-        System.out.println("5 — Капуста");
-        System.out.println("6 — Перець");
+        types.forEach((id, name) -> System.out.println(id + " — " + name));
+        int customOption = types.keySet().stream().mapToInt(i -> i).max().orElse(0) + 1;
+        System.out.println(customOption + " — Власний овоч");
         System.out.print("Ваш вибір: ");
+
+        int choice;
+        try {
+            choice = Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка: введіть число!");
+            return;
+        }
+
+        if (choice == customOption) {
+            addCustomVegetable();
+            return;
+        }
+
+        if (!types.containsKey(choice)) {
+            System.out.println("Невірний вибір.");
+            return;
+        }
+
+        String typeName = types.get(choice);
+        double weight;
+        try {
+            System.out.print("Введіть вагу (в грамах): ");
+            weight = Double.parseDouble(sc.nextLine().trim());
+            if (weight <= 0) { System.out.println("Вага має бути більше нуля!"); return; }
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка: введіть коректне число для ваги!");
+            return;
+        }
+
+        Vegetable veg = service.createVegetable(typeName, weight);
+        service.addVegetable(salad, veg, currentSaladId);
+        System.out.printf("Додано: %s, %.1f г%n", typeName, weight);
     }
 
-    private double requestWeight() {
-        System.out.print("Введіть вагу (в грамах): ");
-        return Double.parseDouble(sc.nextLine());
-    }
+    private void addCustomVegetable() {
+        System.out.print("Назва овоча: ");
+        String name = sc.nextLine().trim();
+        if (name.isEmpty()) { System.out.println("Назва не може бути порожньою!"); return; }
 
-    // Окрема логіка — тепер легко тестувати!
-    protected Vegetable createVegetable(String choice, double weight) {
-        return switch (choice) {
-            case "1" -> new Carrot(weight);
-            case "2" -> new Tomato(weight);
-            case "3" -> new Cucumber(weight);
-            case "4" -> new Onion(weight);
-            case "5" -> new Cabbage(weight);
-            case "6" -> new Pepper(weight);
-            default -> null;
-        };
+        double weight, calories;
+        try {
+            System.out.print("Вага (г): ");
+            weight = Double.parseDouble(sc.nextLine().trim());
+            System.out.print("Калорійність (ккал/100г): ");
+            calories = Double.parseDouble(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка: введіть коректне число!");
+            return;
+        }
+
+        if (weight <= 0 || calories < 0) {
+            System.out.println("Вага має бути > 0, калорійність >= 0!");
+            return;
+        }
+
+        Vegetable veg = service.createCustomVegetable(name, weight, calories);
+        service.addVegetable(salad, veg, currentSaladId);
+        System.out.printf("Додано власний овоч '%s', %.1fг, %.1f ккал/100г%n", name, weight, calories);
     }
 
     @Override
-    public String getDesc() {
-        return "Додати овоч до салату";
-    }
+    public String getDesc() { return "Додати овоч до салату"; }
 }

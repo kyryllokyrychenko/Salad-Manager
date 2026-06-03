@@ -2,6 +2,10 @@ package menu;
 
 import commands.Command;
 import org.junit.jupiter.api.*;
+import repository.SaladRepository;
+import repository.VegetableRepository;
+import repository.VegetableTypeRepository;
+import service.SaladService;
 import vegetables.Salad;
 
 import java.io.*;
@@ -14,11 +18,15 @@ class MenuTest {
 
     private final PrintStream originalOut = System.out;
     private ByteArrayOutputStream out;
+    private SaladService service;
+    private Salad        salad;
 
     @BeforeEach
     void setUp() {
         out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
+        service = mock(SaladService.class);
+        salad   = new Salad("Тестовий салат");
     }
 
     @AfterEach
@@ -26,12 +34,13 @@ class MenuTest {
         System.setOut(originalOut);
     }
 
-    /** Перевіряємо, що init() створює всі команди */
+    private Menu buildMenu() {
+        return new Menu(salad, service, 1);
+    }
+
     @Test
     void testInitCreatesAllCommands() {
-        Menu menu = new Menu();
-        Map<String, Command> map = menu.getCommands();
-
+        Map<String, Command> map = buildMenu().getCommands();
         assertTrue(map.containsKey("додати"));
         assertTrue(map.containsKey("показати"));
         assertTrue(map.containsKey("підрахувати"));
@@ -39,56 +48,44 @@ class MenuTest {
         assertTrue(map.containsKey("знайти"));
         assertTrue(map.containsKey("видалити"));
         assertTrue(map.containsKey("оновити"));
+        assertTrue(map.containsKey("новий"));
+        assertTrue(map.containsKey("відкрити"));
         assertTrue(map.containsKey("сабменю"));
+        assertEquals(10, map.size());
     }
 
-    /** Перевіряємо виконання існуючої та неіснуючої команди */
     @Test
-    void testExecuteValidAndInvalidCommand() {
-        Menu menu = new Menu();
-
-        // Мокаємо одну команду
+    void testExecuteValidCommand() {
+        System.setIn(new ByteArrayInputStream("\n".getBytes()));
+        Menu menu = buildMenu();
         Command mockCommand = mock(Command.class);
         menu.commands.put("тест", mockCommand);
-
-        // valid
         menu.execute("тест");
         verify(mockCommand, times(1)).execute();
+    }
 
-        // invalid
-        out.reset();
+    @Test
+    void testExecuteInvalidCommand() {
+        Menu menu = buildMenu();
         menu.execute("немаєтакої");
         assertTrue(out.toString().contains("Невірний вибір!"));
     }
 
-    /** Покриття show() */
     @Test
-    void testShowDisplaysMenu() {
-        Menu menu = new Menu();
-        menu.show();
-        String printed = out.toString();
-
-        assertTrue(printed.contains("===== МЕНЮ САЛАТУ ====="));
-        assertTrue(printed.contains("вихід"));
+    void testShowDisplaysSaladName() {
+        buildMenu().show();
+        assertTrue(out.toString().contains("Тестовий салат"));
+        assertTrue(out.toString().contains("вихід"));
     }
 
-    /** Повне тестування start(): одна команда → вихід */
     @Test
     void testStartExecutesCommandAndExits() {
-        // Створюємо вхід:
-        // 1) команда "показати"
-        // 2) "вихід"
-        String input = "показати\nвихід\n";
+        String input = "показати\n\nвихід\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
-
-        Menu menu = new Menu();
-
-        // Мокаємо конкретну команду всередині Menu
+        Menu menu = buildMenu();
         Command mockShow = mock(Command.class);
         menu.commands.put("показати", mockShow);
-
         menu.start();
-
         verify(mockShow, times(1)).execute();
         assertTrue(out.toString().contains("Вихід з програми"));
     }

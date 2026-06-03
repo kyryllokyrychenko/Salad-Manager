@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ui.controller.SaladViewController"
+      styleClass="root-pane"
+      spacing="0">
+
+    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="12">
+        <Button text="← Назад" styleClass="btn-back" onAction="#goBack"/>
+        <Label fx:id="saladNameLabel" styleClass="header-title"/>
+    </HBox>
+
+    <VBox styleClass="content-pane" VBox.vgrow="ALWAYS" spacing="16">
+
+        <Label fx:id="caloriesLabel" styleClass="calories-label"/>
+
+        <TableView fx:id="tableView" styleClass="veg-table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="nameCol"     text="Овоч"           prefWidth="220"/>
+                <TableColumn fx:id="weightCol"   text="Вага (г)"       prefWidth="120"/>
+                <TableColumn fx:id="caloriesCol" text="Калорій (ккал)" prefWidth="160"/>
+            </columns>
+            <placeholder><Label text="Салат порожній — додайте перший овоч "/></placeholder>
+        </TableView>
+
+        <HBox spacing="8" alignment="CENTER_RIGHT">
+            <Button text="Показати всі"  styleClass="btn-secondary" onAction="#showAll"/>
+            <Button fx:id="sortBtn" text="Сортувати ↑" styleClass="btn-secondary" onAction="#sortByCalories"/>
+            <Button text="Знайти"        styleClass="btn-secondary" onAction="#findByCalories"/>
+            <Button text="Оновити"       styleClass="btn-secondary" onAction="#updateSelected"/>
+            <Button text="Видалити"      styleClass="btn-danger"    onAction="#deleteSelected"/>
+            <Button text="+ Додати"      styleClass="btn-accent"    onAction="#addVegetable"/>
+        </HBox>
+    </VBox>
+</VBox>

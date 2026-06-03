@@ -1,78 +1,63 @@
 package commands;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import service.SaladService;
 import utils.TestUtils;
-import vegetables.Salad;
+import vegetables.*;
 
 import java.util.List;
 import java.util.Scanner;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 class RemoveVegetableCommandTest {
+
+    private final SaladService service = mock(SaladService.class);
 
     @Test
     void testRemoveValidIndex() {
-        Salad salad = Mockito.mock(Salad.class);
+        Salad salad = mock(Salad.class);
+        when(salad.getVegetables()).thenReturn(List.of(mock(Vegetable.class)));
 
-        Mockito.when(salad.getVegetables())
-                .thenReturn(List.of(Mockito.mock(vegetables.Vegetable.class)));
-
-        // Користувач вводить "1"
-        Scanner fakeScanner = new Scanner("1\n");
-
-        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad);
-        TestUtils.setField(cmd, "sc", fakeScanner);
-
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad, new Scanner("1\n"), service);
         cmd.execute();
-
-        Mockito.verify(salad).remove(0);
+        verify(service).removeVegetable(salad, 0);
     }
 
     @Test
-    void testRemoveInvalidIndex() {
-        Salad salad = Mockito.mock(Salad.class);
-        Mockito.when(salad.getVegetables())
-                .thenReturn(List.of()); // порожній список
+    void testRemoveInvalidIndex_EmptyList() {
+        Salad salad = mock(Salad.class);
+        when(salad.getVegetables()).thenReturn(List.of());
 
-        Scanner fakeScanner = new Scanner("1\n");
-
-        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad);
-        TestUtils.setField(cmd, "sc", fakeScanner);
-
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad, new Scanner("1\n"), service);
         cmd.execute();
-
-        Mockito.verify(salad, Mockito.never()).remove(Mockito.anyInt());
-    }
-
-    @Test
-    void testDescription() {
-        Salad salad = Mockito.mock(Salad.class);
-        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad);
-
-        assert cmd.getDesc().contains("Видалити");
+        verify(service, never()).removeVegetable(any(), anyInt());
     }
 
     @Test
     void testRemoveIndexBelowRange() {
-        Salad salad = Mockito.mock(Salad.class);
+        Salad salad = mock(Salad.class);
+        when(salad.getVegetables()).thenReturn(List.of(mock(Vegetable.class), mock(Vegetable.class)));
 
-        // Нехай є 2 овочі (size = 2)
-        Mockito.when(salad.getVegetables())
-                .thenReturn(List.of(
-                        Mockito.mock(vegetables.Vegetable.class),
-                        Mockito.mock(vegetables.Vegetable.class)
-                ));
-
-        // Користувач вводить "0" — нижче за мінімальний індекс
-        Scanner fakeScanner = new Scanner("0\n");
-
-        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad);
-        TestUtils.setField(cmd, "sc", fakeScanner);
-
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad, new Scanner("0\n"), service);
         cmd.execute();
-
-        // remove НЕ повинен викликатись
-        Mockito.verify(salad, Mockito.never()).remove(Mockito.anyInt());
+        verify(service, never()).removeVegetable(any(), anyInt());
     }
 
+    @Test
+    void testRemoveIndexAboveRange() {
+        Salad salad = mock(Salad.class);
+        when(salad.getVegetables()).thenReturn(List.of(mock(Vegetable.class)));
+
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(salad, new Scanner("99\n"), service);
+        cmd.execute();
+        verify(service, never()).removeVegetable(any(), anyInt());
+    }
+
+    @Test
+    void testGetDesc() {
+        RemoveVegetableCommand cmd = new RemoveVegetableCommand(mock(Salad.class), service);
+        assertTrue(cmd.getDesc().contains("Видалити"));
+    }
 }

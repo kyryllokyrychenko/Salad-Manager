@@ -5,6 +5,7 @@ public abstract class Vegetable {
     private final String name;
     private double weight;       // г
     private final double caloriesPer100g;
+    private int id;
 
     protected Vegetable(String name, double weight, double caloriesPer100g) {
         validateWeight(weight);
@@ -27,10 +28,21 @@ public abstract class Vegetable {
         this.weight = weight;
     }
 
+    public String getName() {
+        return name;
+    }
+
     private void validateWeight(double weight) {
         if (weight < 0) {
             throw new IllegalArgumentException("Вага не може бути від’ємною.");
         }
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public double getCaloriesPer100g() {
+        return caloriesPer100g;
     }
 
     @Override
